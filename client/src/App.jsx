@@ -1,22 +1,18 @@
 import "./App.css";
 import React, { useState } from "react";
 
-import UploadComponent from "./components/UploadComponent";
+import UploadClip from "./components/UploadClip";
 import Search from "./components/Search";
 import Container from "./components/Container";
 import Footer from "./components/Footer";
 
 const App = () => {
-  const [data, setData] = useState([]);
+  const [localVideos, setLocalVideos] = useState([]);
   const [videos, setVideos] = useState([]);
   const [searchQuery, setSearchQuery] = useState("");
 
-  const addLocally = (newData) => {
-    data.push(newData);
-  };
-
   const searchForVideo = () => {
-    const filteredVideos = data.filter((video) => {
+    const filteredVideos = localVideos.filter((video) => {
       return video.title.toLowerCase().includes(searchQuery);
     });
     setVideos(filteredVideos);
@@ -33,8 +29,12 @@ const App = () => {
         setSearchQuery={setSearchQuery}
         searchFunc={searchForVideo}
       />
-      <UploadComponent addVideo={addLocally} />
-      <Container setVideos={setVideos} videos={videos} setData={setData} />
+      <UploadClip setVideos={setVideos} setLocalVideos={setLocalVideos} />
+      <Container
+        setVideos={setVideos}
+        videos={videos}
+        setLocalVideos={setLocalVideos}
+      />
       <Footer />
     </>
   );

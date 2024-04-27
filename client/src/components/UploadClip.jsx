@@ -3,7 +3,7 @@ import { v4 as uuidv4 } from "uuid";
 
 import { useHttpClient } from "../hooks/http-hook";
 
-const UploadComponent = ({ addVideo }) => {
+const UploadClip = ({ setVideos, setLocalVideos }) => {
   const randomId = uuidv4();
   const [videoData, setVideoData] = useState({
     id: randomId,
@@ -11,42 +11,44 @@ const UploadComponent = ({ addVideo }) => {
     title: "",
     rating: 0,
   });
-  const { sendRequest, isLoading, error } = useHttpClient();
+  const { sendRequest, isLoading } = useHttpClient();
 
   const handleChange = ({ target }) => {
     const key = target.placeholder.toLowerCase();
     setVideoData({ ...videoData, [key]: target.value });
   };
 
-  const handleAdding = async () => {
+  const handleAdding = async (e) => {
+    e.preventDefault();
     try {
-      if (!videoData.url.trim() && !videoData.title.trim() && !videoData.id) {
-        throw new Error("Video URL and title are required.");
-      }
-      const response = await sendRequest(
+      const { newVideo } = await sendRequest(
         `${process.env.REACT_APP_API_URL}/`,
         "POST",
-        JSON.stringify(videoData),
-        {
-          "Content-Type": "application/json",
-        }
+        videoData
       );
-      addVideo(videoData);
-      setVideoData({
-        id: randomId,
-        url: "",
-        title: "",
-        rating: 0,
-      });
-      console.log(response);
+
+      if (!isLoading) {
+        setVideos((videos) => {
+          return [...videos, videoData];
+        });
+        setLocalVideos((prevVideos) => {
+          return [...prevVideos, videoData];
+        });
+        setVideoData({
+          id: randomId,
+          url: "",
+          title: "",
+          rating: 0,
+        });
+        console.log(newVideo);
+      }
     } catch (err) {
-      console.log("Error adding video.", { error: err });
-      console.log(err);
+      console.log({ errCode: err.status, errMsg: err.message });
     }
   };
 
   return (
-    <div className="section-container">
+    <form className="section-container">
       <h3>Add Video</h3>
       <input
         className="input-field"
@@ -54,6 +56,7 @@ const UploadComponent = ({ addVideo }) => {
         value={videoData.url}
         placeholder="URL"
         onChange={handleChange}
+        required
       />
       <input
         className="input-field"
@@ -61,6 +64,7 @@ const UploadComponent = ({ addVideo }) => {
         value={videoData.title}
         placeholder="Title"
         onChange={handleChange}
+        required
       />
       <div className="button-container">
         <button
@@ -76,12 +80,16 @@ const UploadComponent = ({ addVideo }) => {
         >
           Cancel
         </button>
-        <button className="add-button btn-primary" onClick={handleAdding}>
+        <button
+          className="add-button btn-primary"
+          type="submit"
+          onClick={handleAdding}
+        >
           ADD
         </button>
       </div>
-    </div>
+    </form>
   );
 };
 
-export default UploadComponent;
+export default UploadClip;

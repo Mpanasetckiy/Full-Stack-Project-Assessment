@@ -9,7 +9,7 @@ const Clip = ({
   title,
   url,
   rating,
-  removeFunc,
+  removeVideoLocally,
   updateRating,
   currentClip,
   setCurrentClip,
@@ -20,7 +20,9 @@ const Clip = ({
   const handleDelete = async () => {
     try {
       await sendRequest(`${process.env.REACT_APP_API_URL}/${id}`, "DELETE");
-      removeFunc(id);
+      if (!isLoading) {
+        removeVideoLocally(id);
+      }
     } catch (error) {
       console.error("Error deleting video:", error);
     }
@@ -52,7 +54,6 @@ const Clip = ({
         <ReactPlayer url={url} controls={true} width="560px" height="315px" />
       </div>
       <div className="video-info">
-        {/* <p className="video-category">Category 1</p> */}
         <div className="video-likes-dislikes">
           <span onClick={changeRating} className="like-button">
             👍

@@ -3,7 +3,7 @@ import React, { useEffect, useState } from "react";
 import { useHttpClient } from "../hooks/http-hook";
 import Clip from "./Clip";
 
-const Container = ({ videos, setVideos, setData }) => {
+const Container = ({ videos, setVideos, setLocalVideos }) => {
   const [currentClip, setCurrentClip] = useState({ id: "", rating: "" });
   const { isLoading, sendRequest, error } = useHttpClient();
 
@@ -12,7 +12,7 @@ const Container = ({ videos, setVideos, setData }) => {
       const response = await sendRequest(`${process.env.REACT_APP_API_URL}/`);
       if (!isLoading) {
         setVideos(response);
-        setData(response);
+        setLocalVideos(response);
       }
     } catch (error) {}
   };
@@ -22,23 +22,20 @@ const Container = ({ videos, setVideos, setData }) => {
   }, []);
 
   const removeVideoLocally = (id) => {
-    const newVideos = videos.filter((video) => video.id !== id);
-    setVideos(newVideos);
+    setVideos((prevVideos) => {
+      const newVideos = prevVideos.filter((video) => video.id !== id);
+      return newVideos;
+    });
   };
 
-  const changeRating = async (id, updatedRating) => {
+  const changeRating = async (id, rating) => {
     try {
-      const response = await sendRequest(
-        `${process.env.REACT_APP_API_URL}/${id}`,
-        "PATCH",
-        JSON.stringify({ rating: updatedRating }),
-        {
-          "Content-Type": "application/json",
-        }
-      );
+      await sendRequest(`${process.env.REACT_APP_API_URL}/${id}`, "PATCH", {
+        rating,
+      });
       const updatedVideos = videos.map((video) => {
         if (video.id === id) {
-          return { ...video, rating: updatedRating };
+          return { ...video, rating };
         }
         return video;
       });
@@ -81,7 +78,7 @@ const Container = ({ videos, setVideos, setData }) => {
               currentClip={currentClip}
               setCurrentClip={setCurrentClip}
               updateRating={changeRating}
-              removeFunc={removeVideoLocally}
+              removeVideoLocally={removeVideoLocally}
               key={video.id}
               {...video}
             />
