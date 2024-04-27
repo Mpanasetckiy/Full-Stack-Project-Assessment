@@ -1,34 +1,21 @@
 import "./App.css";
 import React, { useState } from "react";
 
-import UploadClip from "./components/UploadClip";
 import Search from "./components/Search";
+import UploadClip from "./components/UploadClip";
 import Container from "./components/Container";
 import Footer from "./components/Footer";
 
 const App = () => {
   const [localVideos, setLocalVideos] = useState([]);
   const [videos, setVideos] = useState([]);
-  const [searchQuery, setSearchQuery] = useState("");
-
-  const searchForVideo = () => {
-    const filteredVideos = localVideos.filter((video) => {
-      return video.title.toLowerCase().includes(searchQuery);
-    });
-    setVideos(filteredVideos);
-    setSearchQuery("");
-  };
 
   return (
     <>
       <header>
-        <h1>Video recommendation</h1>
+        <h1>Video Recommendation App</h1>
       </header>
-      <Search
-        searchQuery={searchQuery}
-        setSearchQuery={setSearchQuery}
-        searchFunc={searchForVideo}
-      />
+      <Search localVideos={localVideos} setVideos={setVideos} />
       <UploadClip setVideos={setVideos} setLocalVideos={setLocalVideos} />
       <Container
         setVideos={setVideos}
